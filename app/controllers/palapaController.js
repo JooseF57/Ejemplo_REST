@@ -13,6 +13,11 @@ function buscarTodo (req, res) {
     })
 }
 
+function agregar (req,res){
+    console.log(req.body)
+}
+
 module.exports={
-    buscarTodo
+    buscarTodo,
+    agregar
 }
