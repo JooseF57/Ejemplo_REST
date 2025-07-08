@@ -14,7 +14,19 @@ function buscarTodo (req, res) {
 }
 
 function agregar (req,res){
-    console.log(req.body)
+   // console.log(req.body)
+   new palapaModel(req.body).save()
+   .then(info =>{
+    return res.status(200).send({
+        mensaje:"la informacion se guardo con exito",
+        info
+    })
+   })
+   .catch(e =>{
+    return res.status(404).send({
+        mensaje :`error al guardar la informacion ${e}`
+    })
+   })
 }
 
 module.exports={
