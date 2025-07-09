@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 
 const palapSchema = mongoose.Schema({
     name: {
-        type: String,
-        required: true
+        type: String
         },
         descripcion:{
             type:String,
