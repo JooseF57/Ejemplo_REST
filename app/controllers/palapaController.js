@@ -63,33 +63,19 @@ function eliminarBebida(req, res) {
 }
 
 function actualizarBebida(req, res) {
-    const nombreBebida = req.params.nombre;  // Usamos el parámetro 'nombre' para encontrar la bebida.
-
-    // Verificamos si los datos a actualizar se proporcionan en el cuerpo de la solicitud
-    const bebidaAActualizar = req.body;
-
-    if (!bebidaAActualizar) {
-        return res.status(400).send({ mensaje: "No se proporcionó información para actualizar." });
-    }
-
-    // Verificamos si el campo 'descripcion' o 'precio' u otros son necesarios
-    if (!bebidaAActualizar.descripcion || !bebidaAActualizar.precio || !bebidaAActualizar.capacidad) {
-        return res.status(400).send({ mensaje: "Debe proporcionar los campos 'descripcion', 'precio' y 'capacidad'." });
-    }
-
-    // Realizamos la actualización usando el 'nombre' que recibimos como parámetro
-    palapaModel.updateOne({ nombre: nombreBebida }, { $set: bebidaAActualizar })
-        .then(inf => {
-            if (inf.nModified === 0) {
-                return res.status(404).send({ mensaje: "No se encontró la bebida con ese nombre para actualizar." });
-            }
-            return res.status(200).send({ mensaje: "Bebida actualizada con éxito." });
-        })
-        .catch(e => {
-            return res.status(500).send({ mensaje: "Error al actualizar la bebida", error: e });
-        });
+    palapaModel.findOneAndUpdate(
+        { nombre: req.params.value },
+        req.body,
+        { new: true }
+    )
+    .then(bebida => {
+        if (!bebida) return res.status(404).send({ mensaje: "Bebida no encontrada" });
+        return res.status(200).send({ mensaje: "Bebida actualizada", bebida });
+    })
+    .catch(e => {
+        return res.status(404).send({ mensaje: "Error al actualizar la bebida", error: e });
+    });
 }
-
 
 
 module.exports = {
