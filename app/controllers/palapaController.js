@@ -31,30 +31,37 @@ function agregar(req, res) {
 function buscarBebida(req, res, next) {
     let consulta = {};
     consulta[req.params.key] = req.params.value;
-    console.log(consulta);
+
     palapaModel.find(consulta)
     .then(bebidas => {
         if (!bebidas.length) return next();
-        req.body.bebidas = bebidas;
+        res.locals.bebidas = bebidas;
         return next();
     })
     .catch(e => {
-        req.body.e = e;
+        res.locals.error = e;
         return next();
     });
 }
 
 function mostrarBebida(req, res) {
-    if (req.body.e) return res.status(404).send({ mensaje: "Error al consultar la información" });
-    if (!req.body.bebidas) return res.status(204).send({ mensaje: "No hay información que mostrar" });
-    return res.status(200).send({ bebidas: req.body.bebidas });
+    if (res.locals.error) {
+        return res.status(404).send({ mensaje: "Error al consultar la información" });
+    }
+    if (!res.locals.bebidas) {
+        return res.status(204).send({ mensaje: "No hay información que mostrar" });
+    }
+    return res.status(200).send({ bebidas: res.locals.bebidas });
 }
 
 function eliminarBebida(req, res) {
-    const bebidas = req.body.bebidas;
+    const bebidas = res.locals.bebidas;
+    if (!bebidas || !bebidas.length) {
+        return res.status(404).send({ mensaje: "Bebida no encontrada" });
+    }
 
-    palapaModel.deleteOne(bebidas[0])
-    .then(inf => {
+    palapaModel.deleteOne({ _id: bebidas[0]._id })
+    .then(() => {
         return res.status(200).send({ mensaje: "Bebida eliminada" });
     })
     .catch(e => {
@@ -63,8 +70,11 @@ function eliminarBebida(req, res) {
 }
 
 function actualizarBebida(req, res) {
+    let consulta = {};
+    consulta[req.params.key] = req.params.value;
+
     palapaModel.findOneAndUpdate(
-        { nombre: req.params.value },
+        consulta,
         req.body,
         { new: true }
     )
@@ -76,7 +86,6 @@ function actualizarBebida(req, res) {
         return res.status(404).send({ mensaje: "Error al actualizar la bebida", error: e });
     });
 }
-
 
 module.exports = {
     buscarTodo,
